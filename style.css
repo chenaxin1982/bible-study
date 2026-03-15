@@ -1,0 +1,625 @@
+/* 基础样式 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: #f6f8fa;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* 头部 */
+.header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 14px;
+    opacity: 0.9;
+    margin-bottom: 10px;
+}
+
+.date-display {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+/* 登录状态 */
+.login-status {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#welcomeMsg {
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* 区块 */
+.section {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.section-title {
+    font-size: 20px;
+    color: #24292f;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #f6f8fa;
+}
+
+/* 任务卡片 */
+.task-card {
+    background: #f6f8fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #667eea;
+}
+
+.task-date {
+    font-size: 18px;
+    font-weight: bold;
+    color: #24292f;
+    margin-bottom: 5px;
+}
+
+.task-week {
+    font-size: 14px;
+    color: #667eea;
+    margin-bottom: 10px;
+}
+
+.task-theme {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.scripture {
+    background: #fff5f5;
+    padding: 10px;
+    border-radius: 5px;
+    border-left: 3px solid #cf222e;
+    color: #cf222e;
+}
+
+/* 资料卡片 */
+.resource-card {
+    background: #f6f8fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.resource-card h3 {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #24292f;
+}
+
+.resource-content {
+    font-size: 14px;
+    color: #57606a;
+    margin-bottom: 10px;
+}
+
+.verse {
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    margin: 10px 0;
+    font-style: italic;
+    border-left: 3px solid #667eea;
+}
+
+.link {
+    color: #0969da;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+/* 按钮 */
+.btn {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+}
+
+.btn-primary {
+    background: #2da44e;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #2c974b;
+}
+
+.btn-secondary {
+    background: #f6f8fa;
+    color: #24292f;
+    border: 1px solid #d0d7de;
+}
+
+.btn-secondary:hover {
+    background: #f3f4f6;
+}
+
+.btn-outline {
+    background: transparent;
+    color: #57606a;
+    border: 1px solid #d0d7de;
+}
+
+.btn-outline:hover {
+    background: #f6f8fa;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.btn-large {
+    padding: 12px 24px;
+    font-size: 16px;
+}
+
+/* 操作网格 */
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.action-card {
+    background: #f6f8fa;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    text-decoration: none;
+    color: #24292f;
+    transition: all 0.2s;
+}
+
+.action-card:hover {
+    background: #eaeef2;
+    transform: translateY(-2px);
+}
+
+.action-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+.action-text {
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* 公告卡片 */
+.notice-card {
+    background: #fff8c5;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #ffd33d;
+}
+
+.notice-date {
+    font-size: 12px;
+    color: #57606a;
+    margin-top: 10px;
+}
+
+/* 表单 */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #24292f;
+}
+
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #d0d7de;
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #0969da;
+    box-shadow: 0 0 0 3px rgba(9,105,218,0.1);
+}
+
+.form-hint {
+    font-size: 12px;
+    color: #57606a;
+    margin-top: 5px;
+}
+
+.form-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 登录页面 */
+.login-page {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.login-container {
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+.login-card h1 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.login-subtitle {
+    text-align: center;
+    color: #57606a;
+    margin-bottom: 30px;
+}
+
+.login-help {
+    margin-top: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: #57606a;
+}
+
+.login-help a {
+    color: #0969da;
+    text-decoration: none;
+}
+
+/* 统计卡片 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* 最近打卡 */
+.recent-checkins {
+    background: #f6f8fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+}
+
+.recent-list {
+    background: white;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.recent-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eaeef2;
+    font-size: 14px;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.recent-item .date {
+    min-width: 100px;
+    color: #57606a;
+    font-size: 13px;
+}
+
+.recent-item .name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.recent-item .time {
+    color: #57606a;
+    font-size: 12px;
+}
+
+.loading,
+.empty,
+.error {
+    text-align: center;
+    padding: 20px;
+    color: #57606a;
+}
+
+.error {
+    color: #cf222e;
+}
+
+/* 统计卡片 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+/* 排行榜 */
+.leaderboard-list {
+    background: #f6f8fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eaeef2;
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-item .rank {
+    font-size: 20px;
+    margin-right: 15px;
+    min-width: 30px;
+}
+
+.leaderboard-item .name {
+    flex: 1;
+    font-weight: 500;
+}
+
+.leaderboard-item .stats {
+    font-size: 13px;
+    color: #57606a;
+}
+
+/* 最近打卡 */
+.recent-list {
+    background: #f6f8fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.recent-item {
+    display: flex;
+    padding: 12px 15px;
+    border-bottom: 1px solid #eaeef2;
+    font-size: 14px;
+}
+
+.recent-item:last-child {
+    border-bottom: none;
+}
+
+.recent-item .date {
+    min-width: 100px;
+    color: #57606a;
+}
+
+.recent-item .title {
+    flex: 1;
+}
+
+/* 我的记录 */
+.my-record-list {
+    background: #f6f8fa;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.record-item {
+    padding: 15px;
+    border-bottom: 1px solid #eaeef2;
+}
+
+.record-item:last-child {
+    border-bottom: none;
+}
+
+.record-item .date {
+    display: block;
+    font-size: 12px;
+    color: #57606a;
+    margin-bottom: 5px;
+}
+
+.record-item .content {
+    font-size: 14px;
+    color: #24292f;
+}
+
+/* 结果框 */
+.result-box {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.result-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.result-box h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.result-actions {
+    margin-top: 30px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+/* 页脚 */
+.footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: #57606a;
+    font-size: 13px;
+}
+
+.footer-note {
+    margin-top: 5px;
+    font-size: 12px;
+}
+
+/* 加载和空状态 */
+.loading,
+.empty,
+.error {
+    text-align: center;
+    padding: 40px 20px;
+    color: #57606a;
+}
+
+.error {
+    color: #cf222e;
+}
+
+/* 欢迎消息 */
+.welcome-msg {
+    background: #dafbe1;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    color: #1a7f37;
+    font-weight: 500;
+}
+
+/* 响应式 */
+@media (max-width: 600px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+    
+    .login-status {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .login-status .btn {
+        text-align: center;
+    }
+    
+    .action-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+}
