@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 管理后台 - 圣经共同追求</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <style>
+        body {
+            background: #f6f8fa;
+        }
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(102, 126, 234, 0.3);
+        }
+        .admin-title h1 {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+        .admin-title p {
+            opacity: 0.9;
+            font-size: 15px;
+        }
+        .admin-actions {
+            display: flex;
+            gap: 15px;
+        }
+        .btn-admin {
+            padding: 12px 25px;
+            border-radius: 12px;
+            border: none;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,255,255,0.3);
+        }
+        .btn-outline {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.5);
+        }
+        .btn-outline:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 42px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        .stat-label {
+            font-size: 15px;
+            color: #7f8c8d;
+        }
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        .section-title {
+            font-size: 22px;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+            font-weight: 700;
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .user-table th {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .user-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .user-table tr:hover {
+            background: #f8f9fa;
+        }
+        .role-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .role-admin {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .role-user {
+            background: #e0e0e0;
+            color: #555;
+        }
+        .btn-small {
+            padding: 6px 15px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 5px;
+        }
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.show {
+            display: flex;
+        }
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 450px;
+            animation: fadeInUp 0.3s ease-out;
+        }
+        .modal-header {
+            margin-bottom: 25px;
+        }
+        .modal-header h3 {
+            font-size: 24px;
+            color: #2c3e50;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        .btn-cancel {
+            flex: 1;
+            padding: 12px;
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .btn-save {
+            flex: 1;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+        .checkin-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .checkin-item {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .checkin-user {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        .checkin-tasks {
+            font-size: 14px;
+            color: #555;
+        }
+        .progress-mini {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .progress-mini-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+        
+        /* 日历样式 */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            color: white;
+        }
+        
+        .calendar-title {
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .btn-calendar-nav {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-calendar-nav:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+            position: relative;
+        }
+        
+        .calendar-day:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+        
+        .calendar-day.has-tasks {
+            border-color: #27ae60;
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        }
+        
+        .calendar-day.today {
+            border-color: #667eea;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .calendar-day-number {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .calendar-day-indicator {
+            font-size: 10px;
+            color: #7f8c8d;
+        }
+        
+        .calendar-day.today .calendar-day-indicator {
+            color: rgba(255,255,255,0.9);
+        }
+        
+        /* 任务编辑表单 */
+        .task-edit-form {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .edit-task-item {
+            margin-bottom: 20px;
+        }
+        
+        .edit-task-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 15px;
+        }
+        
+        .edit-task-item textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+        
+        .edit-task-item textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        
+        /* 记录筛选器 */
+        .record-filters {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .record-filters label {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .record-filters input {
+            padding: 8px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .checkin-record-item {
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .record-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .record-user {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        
+        .record-status {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            color: white;
+        }
+        
+        .status-partial {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+        
+        .record-tasks {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        
+        .record-time {
+            font-size: 13px;
+            color: #95a5a6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 管理员头部 -->
+        <header class="admin-header">
+            <div class="admin-title">
+                <h1>📊 管理后台</h1>
+                <p>欢迎，管理员！</p>
+            </div>
+            <div class="admin-actions">
+                <button class="btn-admin btn-outline" onclick="exportToExcel()">📥 导出 Excel</button>
+                <button class="btn-admin btn-outline" onclick="logout()">🚪 退出</button>
+            </div>
+        </header>
+
+        <!-- 统计仪表盘 -->
+        <div class="dashboard-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalUsers">0</div>
+                <div class="stat-label">总用户数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="todayCheckins">0</div>
+                <div class="stat-label">今日打卡人数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="completionRate">0%</div>
+                <div class="stat-label">今日完成率</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalTasks">0</div>
+                <div class="stat-label">今日完成任务数</div>
+            </div>
+        </div>
+
+        <!-- 用户管理 -->
+        <section class="section">
+            <h2 class="section-title">👥 用户管理</h2>
+            <button class="btn-admin btn-primary" onclick="showAddUserModal()" style="margin-bottom: 20px;">
+                ➕ 添加用户
+            </button>
+            <table class="user-table">
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>角色</th>
+                        <th>今日进度</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                    <!-- 用户列表将动态加载 -->
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 任务日历管理 -->
+        <section class="section">
+            <h2 class="section-title">📅 任务日历管理</h2>
+            <div class="calendar-header">
+                <button class="btn-calendar-nav" onclick="previousMonth()">◀ 上月</button>
+                <span class="calendar-title" id="calendarTitle">2026 年 3 月</span>
+                <button class="btn-calendar-nav" onclick="nextMonth()">下月 ▶</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid">
+                <!-- 日历将动态生成 -->
+            </div>
+        </section>
+
+        <!-- 编辑任务模态框 -->
+        <div class="modal" id="editTaskModal">
+            <div class="modal-content" style="max-width: 700px;">
+                <div class="modal-header">
+                    <h3>📝 编辑任务 - <span id="editTaskDate"></span></h3>
+                </div>
+                <div class="task-edit-form">
+                    <div class="edit-task-item">
+                        <label>01 📖 圣经研读</label>
+                        <textarea id="task1Input" rows="2" placeholder="输入圣经研读任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>02 🌅 晨兴</label>
+                        <textarea id="task2Input" rows="2" placeholder="输入晨兴任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>03 🛠️ 实操</label>
+                        <textarea id="task3Input" rows="2" placeholder="输入实操任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>04 📚 课程学习</label>
+                        <textarea id="task4Input" rows="2" placeholder="输入课程学习任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>05 🎵 诗歌背诵</label>
+                        <textarea id="task5Input" rows="2" placeholder="输入诗歌背诵任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>06 📜 圣经背诵</label>
+                        <textarea id="task6Input" rows="2" placeholder="输入圣经背诵任务内容..."></textarea>
+                    </div>
+                    <div class="edit-task-item">
+                        <label>07 🏠 其他操练</label>
+                        <textarea id="task7Input" rows="2" placeholder="输入其他操练任务内容..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-cancel" onclick="closeEditTaskModal()">取消</button>
+                    <button class="btn-save" onclick="saveDailyTasks()">保存任务</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 打卡记录汇总 -->
+        <section class="section">
+            <h2 class="section-title">📊 打卡记录汇总</h2>
+            <div class="record-filters">
+                <label>日期：</label>
+                <input type="date" id="recordDateFilter" onchange="loadCheckinRecords()">
+                <button class="btn-admin btn-primary" onclick="exportCheckinRecords()">📥 导出记录</button>
+            </div>
+            <div class="checkin-list" id="checkinRecordsList">
+                <!-- 打卡记录将动态加载 -->
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>🦞 由 小龙虾 提供支持</p>
+        </footer>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>➕ 添加用户</h3>
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="newUsername" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>姓名</label>
+                <input type="text" id="newUserRealName" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="newUserPassword" placeholder="留空表示无密码">
+            </div>
+            <div class="form-group">
+                <label>角色</label>
+                <select id="newUserRole">
+                    <option value="user">普通用户</option>
+                    <option value="admin">管理员</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeAddUserModal()">取消</button>
+                <button class="btn-save" onclick="saveNewUser()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 全局变量
+        let currentCalendarDate = new Date();
+        let selectedEditDate = null;
+        
+        // 检查管理员权限
+        window.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            
+            if (!user || user.role !== 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            loadDashboard();
+            loadUserTable();
+            loadCheckinList();
+            loadCheckinRecords();
+            
+            // 设置日期筛选器默认为今天
+            document.getElementById('recordDateFilter').value = new Date().toISOString().split('T')[0];
+            
+            // 延迟加载日历，确保 DOM 完全加载
+            setTimeout(() => {
+                loadCalendar();
+            }, 200);
+        });
+
+        function loadDashboard() {
+            const users = getAllUsers();
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 统计今日打卡
+            let todayCheckinCount = 0;
+            let totalTasksCompleted = 0;
+            
+            Object.keys(users).forEach(username => {
+                let completedTasks = 0;
+                for (let i = 1; i <= 7; i++) {
+                    const key = `task_${today}_${username}_${i}`;
+                    if (localStorage.getItem(key) === 'completed') {
+                        completedTasks++;
+                    }
+                }
+                if (completedTasks > 0) {
+                    todayCheckinCount++;
+                    totalTasksCompleted += completedTasks;
+                }
+            });
+            
+            const completionRate = Math.round((todayCheckinCount / (Object.keys(users).length - 1)) * 100); // 减去管理员
+            
+            document.getElementById('totalUsers').textContent = Object.keys(users).length - 1; // 减去管理员
+            document.getElementById('todayCheckins').textContent = todayCheckinCount;
+            document.getElementById('completionRate').textContent = completionRate + '%';
+            document.getElementById('totalTasks').textContent = totalTasksCompleted;
+        }
+
+        function loadUserTable() {
+            const users = getAllUsers();
+            const today = new Date().toISOString().split('T')[0];
+            const tbody = document.getElementById('userTableBody');
+            
+            let html = '';
+            Object.keys(users).forEach(username => {
+                if (username === 'admin') return; // 跳过管理员
+                
+                const user = users[username];
+                let completedTasks = 0;
+                for (let i = 1; i <= 7; i++) {
+                    const key = `task_${today}_${username}_${i}`;
+                    if (localStorage.getItem(key) === 'completed') {
+                        completedTasks++;
+                    }
+                }
+                
+                const progress = Math.round((completedTasks / 7) * 100);
+                
+                html += `
+                    <tr>
+                        <td>${username}</td>
+                        <td>${user.name}</td>
+                        <td><span class="role-badge ${user.role === 'admin' ? 'role-admin' : 'role-user'}">${user.role === 'admin' ? '管理员' : '普通用户'}</span></td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 14px;">${completedTasks}/7</span>
+                                <div class="progress-mini" style="width: 100px;">
+                                    <div class="progress-mini-fill" style="width: ${progress}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            ${username !== 'admin' ? `
+                                <button class="btn-small btn-edit" onclick="editUser('${username}')">编辑</button>
+                                <button class="btn-small btn-delete" onclick="deleteUser('${username}')">删除</button>
+                            ` : ''}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            tbody.innerHTML = html;
+        }
+
+        function loadCheckinList() {
+            const users = getAllUsers();
+            const today = new Date().toISOString().split('T')[0];
+            const container = document.getElementById('checkinList');
+            
+            let html = '';
+            Object.keys(users).forEach(username => {
+                if (username === 'admin') return;
+                
+                let completedTasks = [];
+                for (let i = 1; i <= 7; i++) {
+                    const key = `task_${today}_${username}_${i}`;
+                    if (localStorage.getItem(key) === 'completed') {
+                        completedTasks.push(i);
+                    }
+                }
+                
+                if (completedTasks.length > 0) {
+                    const taskNames = ['圣经研读', '晨兴', '实操', '课程学习', '诗歌背诵', '圣经背诵', '其他操练'];
+                    const completedNames = completedTasks.map(i => taskNames[i-1]);
+                    const progress = Math.round((completedTasks.length / 7) * 100);
+                    
+                    html += `
+                        <div class="checkin-item">
+                            <div class="checkin-user">${users[username].name} (${username})</div>
+                            <div class="checkin-tasks">已完成：${completedNames.join('、')}</div>
+                            <div class="progress-mini">
+                                <div class="progress-mini-fill" style="width: ${progress}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            if (html === '') {
+                html = '<p style="text-align: center; color: #95a5a6; padding: 30px;">今日还没有人打卡</p>';
+            }
+            
+            container.innerHTML = html;
+        }
+
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('show');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('show');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newUserRealName').value = '';
+            document.getElementById('newUserPassword').value = '';
+            document.getElementById('newUserRole').value = 'user';
+        }
+
+        function saveNewUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const name = document.getElementById('newUserRealName').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim();
+            const role = document.getElementById('newUserRole').value;
+            
+            if (!username || !name) {
+                alert('请填写用户名和姓名');
+                return;
+            }
+            
+            const result = addUser(username, password, name, role);
+            
+            if (result.success) {
+                alert('✅ ' + result.message);
+                closeAddUserModal();
+                loadUserTable();
+                loadDashboard();
+            } else {
+                alert('❌ ' + result.message);
+            }
+        }
+
+        function deleteUser(username) {
+            if (confirm(`确定要删除用户 "${username}" 吗？`)) {
+                const result = deleteUser(username);
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                    loadUserTable();
+                    loadDashboard();
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            }
+        }
+
+        function editUser(username) {
+            const users = getAllUsers();
+            const user = users[username];
+            
+            const newPassword = prompt(`修改用户 "${username}" 的密码：`, user.password);
+            if (newPassword !== null) {
+                const result = changeUserPassword(username, newPassword);
+                if (result.success) {
+                    alert('✅ ' + result.message);
+                } else {
+                    alert('❌ ' + result.message);
+                }
+            }
+        }
+
+        function exportToExcel() {
+            const users = getAllUsers();
+            const today = new Date().toISOString().split('T')[0];
+            
+            const data = [['用户名', '姓名', '角色', '完成任务数', '完成率']];
+            
+            Object.keys(users).forEach(username => {
+                if (username === 'admin') return;
+                
+                const user = users[username];
+                let completedTasks = 0;
+                for (let i = 1; i <= 7; i++) {
+                    const key = `task_${today}_${username}_${i}`;
+                    if (localStorage.getItem(key) === 'completed') {
+                        completedTasks++;
+                    }
+                }
+                
+                data.push([
+                    username,
+                    user.name,
+                    user.role === 'admin' ? '管理员' : '普通用户',
+                    completedTasks,
+                    Math.round((completedTasks / 7) * 100) + '%'
+                ]);
+            });
+            
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            XLSX.utils.book_append_sheet(wb, ws, '打卡统计');
+            XLSX.writeFile(wb, `打卡统计_${today}.xlsx`);
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+        
+        // ========== 日历功能 ==========
+        
+        function loadCalendar() {
+            const year = currentCalendarDate.getFullYear();
+            const month = currentCalendarDate.getMonth();
+            
+            // 更新标题
+            const titleEl = document.getElementById('calendarTitle');
+            if (titleEl) {
+                titleEl.textContent = `${year}年 ${month + 1}月`;
+            }
+            
+            // 生成日历
+            const grid = document.getElementById('calendarGrid');
+            if (!grid) {
+                console.error('calendarGrid 元素未找到');
+                return;
+            }
+            grid.innerHTML = '';
+            
+            // 星期标题
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekDays.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            // 获取当月第一天
+            const firstDay = new Date(year, month, 1);
+            const startingDay = firstDay.getDay();
+            
+            // 获取当月天数
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            
+            // 获取今天
+            const today = new Date();
+            const todayStr = today.toISOString().split('T')[0];
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+            
+            // 填充前面的空白
+            for (let i = 0; i < startingDay; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+            
+            // 生成日期
+            let todayEl = null;
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                const dayEl = document.createElement('div');
+                dayEl.className = 'calendar-day';
+                
+                // 检查是否是今天
+                if (dateStr === todayStr) {
+                    dayEl.classList.add('today');
+                    todayEl = dayEl;
+                }
+                
+                // 检查是否有任务
+                const tasks = getDailyTasks(dateStr);
+                const hasTasks = tasks.some(t => t && t.trim() !== '');
+                if (hasTasks) {
+                    dayEl.classList.add('has-tasks');
+                }
+                
+                dayEl.innerHTML = `
+                    <div class="calendar-day-number">${day}</div>
+                    <div class="calendar-day-indicator">${hasTasks ? '✅ 已设置' : '未设置'}</div>
+                `;
+                
+                dayEl.onclick = () => openEditTaskModal(dateStr);
+                grid.appendChild(dayEl);
+            }
+            
+            // 如果是当月，滚动到今天的位置
+            if (isCurrentMonth && todayEl) {
+                setTimeout(() => {
+                    todayEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 300);
+            }
+        }
+        
+        function previousMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+            loadCalendar();
+        }
+        
+        function nextMonth() {
+            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+            loadCalendar();
+        }
+        
+        function openEditTaskModal(dateStr) {
+            selectedEditDate = dateStr;
+            document.getElementById('editTaskDate').textContent = dateStr;
+            
+            // 加载当天的任务
+            const tasks = getDailyTasks(dateStr);
+            document.getElementById('task1Input').value = tasks[0] || '';
+            document.getElementById('task2Input').value = tasks[1] || '';
+            document.getElementById('task3Input').value = tasks[2] || '';
+            document.getElementById('task4Input').value = tasks[3] || '';
+            document.getElementById('task5Input').value = tasks[4] || '';
+            document.getElementById('task6Input').value = tasks[5] || '';
+            document.getElementById('task7Input').value = tasks[6] || '';
+            
+            document.getElementById('editTaskModal').classList.add('show');
+        }
+        
+        function closeEditTaskModal() {
+            document.getElementById('editTaskModal').classList.remove('show');
+            selectedEditDate = null;
+        }
+        
+        function saveDailyTasks() {
+            if (!selectedEditDate) return;
+            
+            const tasks = [
+                document.getElementById('task1Input').value.trim(),
+                document.getElementById('task2Input').value.trim(),
+                document.getElementById('task3Input').value.trim(),
+                document.getElementById('task4Input').value.trim(),
+                document.getElementById('task5Input').value.trim(),
+                document.getElementById('task6Input').value.trim(),
+                document.getElementById('task7Input').value.trim()
+            ];
+            
+            // 保存到 localStorage
+            const key = `daily_tasks_${selectedEditDate}`;
+            localStorage.setItem(key, JSON.stringify(tasks));
+            
+            alert('✅ 任务保存成功！');
+            closeEditTaskModal();
+            loadCalendar();
+        }
+        
+        function getDailyTasks(dateStr) {
+            const key = `daily_tasks_${dateStr}`;
+            const tasks = localStorage.getItem(key);
+            return tasks ? JSON.parse(tasks) : [];
+        }
+        
+        // ========== 打卡记录功能 ==========
+        
+        function loadCheckinRecords() {
+            const date = document.getElementById('recordDateFilter').value;
+            const key = `admin_checkin_records_${date}`;
+            const records = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            const container = document.getElementById('checkinRecordsList');
+            
+            if (records.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #95a5a6; padding: 30px;">今日还没有打卡记录</p>';
+                return;
+            }
+            
+            const taskNames = ['圣经研读', '晨兴', '实操', '课程学习', '诗歌背诵', '圣经背诵', '其他操练'];
+            
+            let html = '';
+            records.forEach(record => {
+                const completedNames = record.completedTasks.map(i => taskNames[i - 1]);
+                const progress = Math.round((record.completedCount / 7) * 100);
+                const statusClass = record.status === 'completed' ? 'status-completed' : 'status-partial';
+                const statusText = record.status === 'completed' ? '✅ 已完成' : '⏳ 进行中';
+                
+                html += `
+                    <div class="checkin-record-item">
+                        <div class="record-header">
+                            <div class="record-user">${record.name} (${record.username})</div>
+                            <div class="record-status ${statusClass}">${statusText} ${record.completedCount}/7</div>
+                        </div>
+                        <div class="record-tasks">
+                            <strong>已完成：</strong>${completedNames.join('、') || '暂无'}
+                        </div>
+                        <div class="record-time">
+                            🕐 最后更新：${new Date(record.timestamp).toLocaleString('zh-CN')}
+                        </div>
+                        <div class="progress-mini" style="margin-top: 10px;">
+                            <div class="progress-mini-fill" style="width: ${progress}%"></div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        function exportCheckinRecords() {
+            const date = document.getElementById('recordDateFilter').value;
+            const key = `admin_checkin_records_${date}`;
+            const records = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            if (records.length === 0) {
+                alert('❌ 当前日期没有打卡记录');
+                return;
+            }
+            
+            const taskNames = ['圣经研读', '晨兴', '实操', '课程学习', '诗歌背诵', '圣经背诵', '其他操练'];
+            const data = [
+                ['用户名', '姓名', '日期', '完成数', '完成率', '状态', '最后更新', 
+                 '圣经研读', '晨兴', '实操', '课程学习', '诗歌背诵', '圣经背诵', '其他操练']
+            ];
+            
+            records.forEach(record => {
+                const rate = Math.round((record.completedCount / 7) * 100) + '%';
+                const status = record.status === 'completed' ? '已完成' : '进行中';
+                const time = new Date(record.timestamp).toLocaleString('zh-CN');
+                
+                // 生成 7 个任务的完成情况（是/否）
+                const taskStatus = taskNames.map((_, index) => {
+                    return record.completedTasks.includes(index + 1) ? '是' : '否';
+                });
+                
+                data.push([
+                    record.username,
+                    record.name,
+                    record.date,
+                    record.completedCount,
+                    rate,
+                    status,
+                    time,
+                    ...taskStatus  // 展开 7 个任务的状态
+                ]);
+            });
+            
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            
+            // 设置列宽
+            const wscols = [
+                {wch: 15}, // 用户名
+                {wch: 15}, // 姓名
+                {wch: 15}, // 日期
+                {wch: 10}, // 完成数
+                {wch: 10}, // 完成率
+                {wch: 10}, // 状态
+                {wch: 20}, // 最后更新
+                {wch: 12}, // 圣经研读
+                {wch: 12}, // 晨兴
+                {wch: 12}, // 实操
+                {wch: 12}, // 课程学习
+                {wch: 12}, // 诗歌背诵
+                {wch: 12}, // 圣经背诵
+                {wch: 12}  // 其他操练
+            ];
+            ws['!cols'] = wscols;
+            
+            XLSX.utils.book_append_sheet(wb, ws, '打卡记录');
+            XLSX.writeFile(wb, `打卡记录_${date}.xlsx`);
+        }
+    </script>
+</body>
+</html>
+</body>
+</html>

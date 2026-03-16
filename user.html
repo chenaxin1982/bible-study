@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📅 今日打卡 - 圣经共同追求</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .user-bar {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.3);
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+        .user-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        .user-date {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .btn-logout {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-logout:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        .task-item {
+            display: flex;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 18px;
+            padding: 25px;
+            margin-bottom: 18px;
+            border-left: 6px solid #667eea;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .task-checkbox-label {
+            position: relative;
+            cursor: pointer;
+            min-width: 40px;
+            height: 40px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .task-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+            height: 100%;
+        }
+        .checkbox-custom {
+            width: 32px;
+            height: 32px;
+            background: white;
+            border: 2px solid #d0d7de;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .checkbox-custom::after {
+            content: '✓';
+            font-size: 20px;
+            color: white;
+            font-weight: 700;
+            display: none;
+        }
+        .task-checkbox:checked + .checkbox-custom {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-color: #27ae60;
+            transform: scale(1.1);
+            box-shadow: 0 3px 10px rgba(39, 174, 96, 0.3);
+        }
+        .task-checkbox:checked + .checkbox-custom::after {
+            display: block;
+            animation: checkmark 0.3s ease-out;
+        }
+        .task-content {
+            flex: 1;
+        }
+        .task-category {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .category-icon {
+            font-size: 26px;
+        }
+        .category-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        .task-detail-link {
+            font-size: 17px;
+            color: #3498db;
+            line-height: 1.8;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .task-detail-link:hover {
+            color: #2980b9;
+            text-decoration: underline;
+        }
+        .task-item.completed {
+            opacity: 0.7;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e9ecef 100%);
+            border-left-color: #27ae60;
+        }
+        .task-item.completed .task-detail-link {
+            text-decoration: line-through;
+            color: #95a5a6;
+        }
+        .task-progress {
+            margin-top: 25px;
+            padding: 25px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border: 2px solid #667eea;
+        }
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .progress-info span:first-child {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+        #progressText {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 25px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .progress-message {
+            font-size: 16px;
+            text-align: center;
+            font-weight: 600;
+            min-height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 用户栏 -->
+        <div class="user-bar">
+            <div class="user-info">
+                <div class="user-avatar">👤</div>
+                <div>
+                    <div class="user-name" id="userName">加载中...</div>
+                    <div class="user-date" id="currentDate"></div>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="logout()" id="logoutBtn" style="display: none;">🚪 退出登录</button>
+        </div>
+
+        <!-- 今日任务 -->
+        <section class="section">
+            <h2 class="section-title">📅 今日任务</h2>
+
+            <div class="daily-tasks">
+                <div class="task-item task-item-1">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="1" onchange="toggleTaskComplete(1)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">📖</span>
+                            <span class="category-name">圣经研读</span>
+                        </div>
+                        <a href="resources/bible-study.html" class="task-detail-link" target="_blank" id="taskDetail1">
+                            进入约书亚 5-8 章及哥林多前书 4-6 章的圣经、注解及相应生命读经
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-2">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="2" onchange="toggleTaskComplete(2)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">🌅</span>
+                            <span class="category-name">晨兴</span>
+                        </div>
+                        <a href="resources/morning-revival.html" class="task-detail-link" target="_blank" id="taskDetail2">
+                            提前进入冬季训练第 6 篇信息
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-3">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="3" onchange="toggleTaskComplete(3)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">🛠️</span>
+                            <span class="category-name">实操</span>
+                        </div>
+                        <a href="resources/practice.html" class="task-detail-link" target="_blank" id="taskDetail3">
+                            提前进入生命实操和事务实操信息
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-4">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="4" onchange="toggleTaskComplete(4)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">📚</span>
+                            <span class="category-name">课程学习</span>
+                        </div>
+                        <a href="resources/course.html" class="task-detail-link" target="_blank" id="taskDetail4">
+                            熟读背诵基督丰满职事第 3 课第 4 课纲目
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-5">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="5" onchange="toggleTaskComplete(5)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">🎵</span>
+                            <span class="category-name">诗歌背诵</span>
+                        </div>
+                        <a href="resources/hymn-281.html" class="task-detail-link" target="_blank" id="taskDetail5">
+                            背诵诗歌大本 281，背诵整首
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-6">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="6" onchange="toggleTaskComplete(6)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">📜</span>
+                            <span class="category-name">圣经背诵</span>
+                        </div>
+                        <a href="resources/bible-memory.html" class="task-detail-link" target="_blank" id="taskDetail6">
+                            背诵圣经林前 4-6 章，至少背 5 节
+                        </a>
+                    </div>
+                </div>
+
+                <div class="task-item task-item-7">
+                    <label class="task-checkbox-label">
+                        <input type="checkbox" class="task-checkbox" data-task="7" onchange="toggleTaskComplete(7)">
+                        <span class="checkbox-custom"></span>
+                    </label>
+                    <div class="task-content">
+                        <div class="task-category">
+                            <span class="category-icon">🏠</span>
+                            <span class="category-name">其他操练</span>
+                        </div>
+                        <a href="resources/hospitality.html" class="task-detail-link" target="_blank" id="taskDetail7">
+                            打开家接待或爱筵至少一次
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 打卡进度 -->
+            <div class="task-progress">
+                <div class="progress-info">
+                    <span>今日进度</span>
+                    <span id="progressText">0/7</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-message" id="progressMessage"></div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer class="footer">
+            <p>🦞 由 小龙虾 提供支持</p>
+        </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        // 检查登录状态
+        window.addEventListener('DOMContentLoaded', () => {
+            const user = getCurrentUser();
+            
+            if (!user || user.role === 'admin') {
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            // 显示用户信息
+            document.getElementById('userName').textContent = user.name;
+            
+            // 显示日期
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', dateOptions);
+            
+            // 显示退出按钮
+            document.getElementById('logoutBtn').style.display = 'block';
+            
+            // 加载每日任务
+            loadDailyTasks();
+            
+            // 加载打卡状态
+            loadTaskState();
+            
+            // 监听页面关闭/刷新，自动保存打卡记录
+            window.addEventListener('beforeunload', saveCheckinRecord);
+        });
+        
+        // 保存打卡记录到后台
+        function saveCheckinRecord() {
+            const user = getCurrentUser();
+            if (!user) return;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const completedTasks = [];
+            
+            for (let i = 1; i <= 7; i++) {
+                const key = `task_${today}_${user.username}_${i}`;
+                if (localStorage.getItem(key) === 'completed') {
+                    completedTasks.push(i);
+                }
+            }
+            
+            // 保存打卡记录
+            const recordKey = `checkin_record_${today}_${user.username}`;
+            const recordData = {
+                username: user.username,
+                name: user.name,
+                date: today,
+                completedTasks: completedTasks,
+                completedCount: completedTasks.length,
+                timestamp: new Date().toISOString(),
+                status: completedTasks.length === 7 ? 'completed' : 'partial'
+            };
+            
+            localStorage.setItem(recordKey, JSON.stringify(recordData));
+            
+            // 同时保存到管理员可查看的打卡列表
+            saveToAdminCheckinList(recordData);
+        }
+        
+        function saveToAdminCheckinList(recordData) {
+            const key = `admin_checkin_records_${recordData.date}`;
+            const records = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            // 更新或添加记录
+            const existingIndex = records.findIndex(r => r.username === recordData.username);
+            if (existingIndex >= 0) {
+                records[existingIndex] = recordData;
+            } else {
+                records.push(recordData);
+            }
+            
+            localStorage.setItem(key, JSON.stringify(records));
+        }
+        
+        // 加载每日任务
+        function loadDailyTasks() {
+            const today = new Date().toISOString().split('T')[0];
+            const key = `daily_tasks_${today}`;
+            const tasks = JSON.parse(localStorage.getItem(key) || '[]');
+            
+            const defaultTasks = [
+                '进入约书亚 5-8 章及哥林多前书 4-6 章的圣经、注解及相应生命读经',
+                '提前进入冬季训练第 6 篇信息',
+                '提前进入生命实操和事务实操信息',
+                '熟读背诵基督丰满职事第 3 课第 4 课纲目',
+                '背诵诗歌大本 281，背诵整首',
+                '背诵圣经林前 4-6 章，至少背 5 节',
+                '打开家接待或爱筵至少一次'
+            ];
+            
+            for (let i = 0; i < 7; i++) {
+                const el = document.getElementById(`taskDetail${i + 1}`);
+                if (el && tasks[i] && tasks[i].trim() !== '') {
+                    el.textContent = tasks[i];
+                } else {
+                    el.textContent = defaultTasks[i];
+                }
+            }
+        }
+
+        function toggleTaskComplete(taskId) {
+            const checkbox = document.querySelector(`.task-checkbox[data-task="${taskId}"]`);
+            const taskItem = checkbox.closest('.task-item');
+            
+            if (checkbox.checked) {
+                taskItem.classList.add('completed');
+                showProgressMessage(`✅ 任务 ${taskId} 已完成！加油！`);
+            } else {
+                taskItem.classList.remove('completed');
+                showProgressMessage('💪 继续努力！');
+            }
+            
+            updateProgress();
+            saveTaskState(taskId, checkbox.checked);
+        }
+
+        function updateProgress() {
+            const checkedCount = document.querySelectorAll('.task-checkbox:checked').length;
+            const totalCount = 7;
+            const percentage = (checkedCount / totalCount) * 100;
+            
+            document.getElementById('progressText').textContent = `${checkedCount}/${totalCount}`;
+            document.getElementById('progressFill').style.width = percentage + '%';
+            
+            if (checkedCount === totalCount) {
+                showProgressMessage('🎉 恭喜！今日所有任务已完成！');
+                triggerConfetti();
+            } else if (checkedCount === 0) {
+                showProgressMessage('💪 开始今天的追求吧！');
+            } else if (checkedCount < 3) {
+                showProgressMessage(`✅ 已完成 ${checkedCount} 项，继续加油！`);
+            } else if (checkedCount < 5) {
+                showProgressMessage(`🔥 太棒了！已完成 ${checkedCount} 项，坚持！`);
+            } else {
+                showProgressMessage(`🌟 胜利在望！还剩 ${totalCount - checkedCount} 项！`);
+            }
+        }
+
+        function showProgressMessage(message) {
+            const messageEl = document.getElementById('progressMessage');
+            messageEl.textContent = message;
+        }
+
+        function saveTaskState(taskId, isCompleted) {
+            const today = new Date().toISOString().split('T')[0];
+            const user = getCurrentUser();
+            const key = `task_${today}_${user.username}_${taskId}`;
+            
+            if (isCompleted) {
+                localStorage.setItem(key, 'completed');
+            } else {
+                localStorage.removeItem(key);
+            }
+            
+            // 立即保存打卡记录
+            saveCheckinRecord();
+        }
+
+        function loadTaskState() {
+            const today = new Date().toISOString().split('T')[0];
+            const user = getCurrentUser();
+            
+            for (let i = 1; i <= 7; i++) {
+                const key = `task_${today}_${user.username}_${i}`;
+                const state = localStorage.getItem(key);
+                
+                if (state === 'completed') {
+                    const checkbox = document.querySelector(`.task-checkbox[data-task="${i}"]`);
+                    if (checkbox) {
+                        checkbox.checked = true;
+                        const taskItem = checkbox.closest('.task-item');
+                        taskItem.classList.add('completed');
+                    }
+                }
+            }
+            
+            updateProgress();
+        }
+
+        function triggerConfetti() {
+            const colors = ['#667eea', '#764ba2', '#27ae60', '#f39c12', '#e74c3c'];
+            for (let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.style.cssText = `
+                        position: fixed;
+                        width: 10px;
+                        height: 10px;
+                        background: ${colors[Math.floor(Math.random() * colors.length)]};
+                        left: ${Math.random() * 100}vw;
+                        top: -10px;
+                        z-index: 9999;
+                        border-radius: 50%;
+                        animation: fall ${2 + Math.random() * 2}s linear;
+                    `;
+                    document.body.appendChild(confetti);
+                    setTimeout(() => confetti.remove(), 4000);
+                }, i * 50);
+            }
+        }
+
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fall {
+                to {
+                    transform: translateY(100vh) rotate(720deg);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        function logout() {
+            // 先保存打卡记录
+            saveCheckinRecord();
+            
+            if (confirm('确定要退出登录吗？\n打卡记录已自动保存！')) {
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('loginTime');
+                window.location.href = 'index.html';
+            }
+        }
+    </script>
+</body>
+</html>

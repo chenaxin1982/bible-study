@@ -3,255 +3,209 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>圣经共同追求 - 首页</title>
+    <title>🔐 登录 - 圣经共同追求</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        .login-wrapper {
+            width: 100%;
+            max-width: 450px;
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(10px);
+            padding: 40px;
+            border-radius: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: fadeInUp 0.6s ease-out;
+        }
+        .login-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+        .login-header h1 {
+            font-size: 32px;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        .login-header p {
+            color: #7f8c8d;
+            font-size: 15px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 17px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .error-message {
+            background: #fee;
+            color: #c0392b;
+            padding: 12px 15px;
+            border-radius: 10px;
+            border-left: 4px solid #e74c3c;
+            margin-bottom: 20px;
+            display: none;
+        }
+        .welcome-toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            animation: fadeIn 0.3s ease-out;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <!-- 头部 -->
-        <header class="header">
-            <h1>📖 圣经共同追求</h1>
-            <p class="subtitle">马太福音中所启示包罗万有的基督</p>
-            <div class="date-display" id="currentDate"></div>
-        </header>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="login-header">
+                <h1>🔐 登录</h1>
+                <p>圣经共同追求</p>
+            </div>
 
-        <!-- 登录状态 -->
-        <div class="login-status" id="loginStatus">
-            <span id="welcomeMsg"></span>
-            <a href="checkin.html" class="btn btn-primary">✅ 打卡</a>
-            <a href="stats.html" class="btn btn-secondary">📊 进度</a>
-            <button onclick="logout()" class="btn btn-outline">退出</button>
+            <div class="error-message" id="errorMessage"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" required placeholder="请输入用户名" autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+                </div>
+
+                <button type="submit" class="btn-login">登录</button>
+            </form>
         </div>
-
-        <!-- 打卡统计 -->
-        <section class="section">
-            <h2 class="section-title">📊 今日打卡统计</h2>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="todayCount">0</div>
-                    <div class="stat-label">今日打卡人数</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="weekCount">0</div>
-                    <div class="stat-label">本周打卡次数</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalIssues">0</div>
-                    <div class="stat-label">总打卡记录</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="completionRate">0%</div>
-                    <div class="stat-label">今日完成率</div>
-                </div>
-            </div>
-            <div class="recent-checkins" id="recentCheckins">
-                <div class="loading">加载中...</div>
-            </div>
-        </section>
-
-        <!-- 今日任务 -->
-        <section class="section">
-            <h2 class="section-title">📅 今日任务</h2>
-            <div class="task-card">
-                <div class="task-date">2026 年 3 月 16 日（周一）</div>
-                <div class="task-week">第五周·周一</div>
-                <div class="task-theme">基督作为那赐我们安息者</div>
-                <div class="scripture">
-                    <strong>读经：</strong>创一 26、31～二 2，太十一 28～30，出三一 12～17
-                </div>
-            </div>
-        </section>
-
-        <!-- 今日资料 -->
-        <section class="section">
-            <h2 class="section-title">📚 今日资料</h2>
-            
-            <div class="resource-card">
-                <h3>📖 晨兴内容</h3>
-                <div class="resource-content">
-                    <p><strong>重点经文：</strong>太十一 28～30</p>
-                    <p class="verse">"凡劳苦担重担的，可以到我这里来，我必使你们得安息。"</p>
-                    <p><strong>核心信息：</strong>负主的轭就是接受父的旨意，跟主学得安息。</p>
-                </div>
-                <a href="https://ailingmusheng.ren/7/2025/2025-6/5_h_1.htm" target="_blank" class="btn btn-primary">阅读全文</a>
-            </div>
-
-            <div class="resource-card">
-                <h3>🎵 诗歌</h3>
-                <div class="resource-content">
-                    <p>诗歌：<strong>382 首</strong> 主，你的爱何等的甘甜</p>
-                </div>
-            </div>
-
-            <div class="resource-card">
-                <h3>📺 视频信息</h3>
-                <div class="resource-content">
-                    <p>第五篇 基督作为那赐我们安息者</p>
-                    <a href="#" class="link">▶️ 观看视频（待上传）</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- 快速操作 -->
-        <section class="section">
-            <h2 class="section-title">⚡ 快速操作</h2>
-            <div class="action-grid">
-                <a href="checkin.html" class="action-card">
-                    <div class="action-icon">✅</div>
-                    <div class="action-text">今日打卡</div>
-                </a>
-                <a href="stats.html" class="action-card">
-                    <div class="action-icon">📊</div>
-                    <div class="action-text">查看进度</div>
-                </a>
-                <a href="https://recoveryversion.com.tw/Style0A/026/bible_menu.php" target="_blank" class="action-card">
-                    <div class="action-icon">📖</div>
-                    <div class="action-text">恢复本圣经</div>
-                </a>
-                <a href="https://ailingmusheng.ren/7/2025/2025-6/" target="_blank" class="action-card">
-                    <div class="action-icon">🔗</div>
-                    <div class="action-text">晨兴网站</div>
-                </a>
-            </div>
-        </section>
-
-        <!-- 公告 -->
-        <section class="section">
-            <h2 class="section-title">📢 公告</h2>
-            <div class="notice-card">
-                <p>🎉 欢迎加入圣经共同追求！</p>
-                <p>每天完成读经和晨兴内容后，记得打卡哦～</p>
-                <p class="notice-date">发布于：2026-03-15</p>
-            </div>
-        </section>
-
-        <!-- 页脚 -->
-        <footer class="footer">
-            <p>🦞 由 小龙虾 提供支持</p>
-            <p class="footer-note">GitHub: chenaxin1982/bible-study</p>
-        </footer>
     </div>
 
     <script src="js/config.js"></script>
-    <script src="js/app.js"></script>
     <script>
-        // 显示当前日期
-        const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', dateOptions);
-        
-        // 检查登录状态
-        checkLoginStatus();
-        
-        // 加载打卡统计
-        loadCheckinStats();
-        
-        // 加载打卡统计函数
-        async function loadCheckinStats() {
-            try {
-                const issues = await getGitHubIssues();
-                const today = new Date().toISOString().split('T')[0];
-                const currentWeek = getWeekNumber(new Date());
-                
-                // 筛选今日打卡
-                const todayCheckins = issues.filter(issue => {
-                    const issueDate = issue.created_at.split('T')[0];
-                    return issueDate === today && issue.labels.some(l => l.name === 'checkin');
-                });
-                
-                // 筛选本周打卡
-                const weekCheckins = issues.filter(issue => {
-                    const issueDate = new Date(issue.created_at);
-                    const issueWeek = getWeekNumber(issueDate);
-                    return issueWeek === currentWeek && issue.labels.some(l => l.name === 'checkin');
-                });
-                
-                // 计算总打卡数
-                const totalCheckins = issues.filter(issue => 
-                    issue.labels.some(l => l.name === 'checkin')
-                ).length;
-                
-                // 计算完成率（假设 10 个成员）
-                const completionRate = Math.round((todayCheckins.length / 10) * 100);
-                
-                // 更新统计
-                document.getElementById('todayCount').textContent = todayCheckins.length;
-                document.getElementById('weekCount').textContent = weekCheckins.length;
-                document.getElementById('totalIssues').textContent = totalCheckins;
-                document.getElementById('completionRate').textContent = completionRate + '%';
-                
-                // 显示最近打卡
-                displayRecentCheckins(todayCheckins);
-                
-            } catch (error) {
-                console.error('加载统计失败:', error);
-                // 如果 API 失败，显示模拟数据
-                displayMockStats();
+        // 如果已经登录，直接跳转
+        window.addEventListener('DOMContentLoaded', () => {
+            const currentUser = getCurrentUser();
+            if (currentUser) {
+                if (currentUser.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'index.html';
+                }
+            }
+        });
+
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            
+            const result = validateLogin(username, password);
+            
+            if (result.success) {
+                showWelcomeAndRedirect(result.user);
+            } else {
+                showError(result.message);
             }
         }
-        
-        function displayRecentCheckins(checkins) {
-            const container = document.getElementById('recentCheckins');
+
+        function showWelcomeAndRedirect(user) {
+            // 保存用户信息
+            saveUser(user);
             
-            if (checkins.length === 0) {
-                container.innerHTML = '<p class="empty">今日还没有人打卡，来做第一个吧！💪</p>';
-                return;
-            }
-            
-            let html = '<div class="recent-list">';
-            checkins.forEach(issue => {
-                const time = new Date(issue.created_at).toLocaleTimeString('zh-CN', { 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
-                const name = issue.title.replace(/\d{4}-\d{2}-\d{2}\s*/, '').replace(' 打卡 ✅', '');
-                html += `
-                    <div class="recent-item">
-                        <span class="date">${time}</span>
-                        <span class="name">${name}</span>
-                        <span class="time">✅</span>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            
-            container.innerHTML = html;
-        }
-        
-        function displayMockStats() {
-            // 模拟数据（当 API 不可用时）
-            document.getElementById('todayCount').textContent = '3';
-            document.getElementById('weekCount').textContent = '15';
-            document.getElementById('totalIssues').textContent = '28';
-            document.getElementById('completionRate').textContent = '30%';
-            
-            const container = document.getElementById('recentCheckins');
-            container.innerHTML = `
-                <div class="recent-list">
-                    <div class="recent-item">
-                        <span class="date">07:30</span>
-                        <span class="name">张三</span>
-                        <span class="time">✅</span>
-                    </div>
-                    <div class="recent-item">
-                        <span class="date">08:15</span>
-                        <span class="name">李四</span>
-                        <span class="time">✅</span>
-                    </div>
-                    <div class="recent-item">
-                        <span class="date">09:00</span>
-                        <span class="name">王五</span>
-                        <span class="time">✅</span>
-                    </div>
-                </div>
+            // 显示欢迎提示
+            const welcomeDiv = document.createElement('div');
+            welcomeDiv.className = 'welcome-toast';
+            welcomeDiv.innerHTML = `
+                <div style="font-size: 60px; margin-bottom: 15px;">✅</div>
+                <h3 style="color: #2c3e50; margin-bottom: 10px;">登录成功！</h3>
+                <p style="color: #7f8c8d;">欢迎，${user.name}！</p>
+                <p style="font-size: 13px; color: #95a5a6; margin-top: 15px;">正在跳转...</p>
             `;
+            
+            document.body.appendChild(welcomeDiv);
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'overlay';
+            document.body.appendChild(overlay);
+            
+            // 延迟跳转
+            setTimeout(() => {
+                if (user.role === 'admin') {
+                    window.location.href = 'admin.html';
+                } else {
+                    window.location.href = 'user.html';
+                }
+            }, 1500);
         }
-        
-        function getWeekNumber(date) {
-            const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-            const dayNum = d.getUTCDay() || 7;
-            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
-            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
-            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+
+        function showError(message) {
+            const errorEl = document.getElementById('errorMessage');
+            errorEl.textContent = '❌ ' + message;
+            errorEl.style.display = 'block';
+            
+            setTimeout(() => {
+                errorEl.style.display = 'none';
+            }, 3000);
         }
     </script>
 </body>
