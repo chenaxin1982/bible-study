@@ -3,210 +3,726 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔐 登录 - 圣经共同追求</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔐</text></svg>">
-    <link rel="stylesheet" href="style.css">
+    <title>📖 提后二 22 - 打卡系统</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
     <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-        }
-        .login-wrapper {
-            width: 100%;
-            max-width: 450px;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(10px);
-            padding: 40px;
-            border-radius: 25px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: fadeInUp 0.6s ease-out;
-        }
-        .login-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-        .login-header h1 {
-            font-size: 32px;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        .login-header p {
-            color: #7f8c8d;
-            font-size: 15px;
-        }
-        .form-group {
-            margin-bottom: 25px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: #2c3e50;
-            font-size: 16px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e0e0e0;
-            border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-        }
-        .btn-login {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 17px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
-        }
-        .error-message {
-            background: #fee;
-            color: #c0392b;
-            padding: 12px 15px;
-            border-radius: 10px;
-            border-left: 4px solid #e74c3c;
-            margin-bottom: 20px;
-            display: none;
-        }
-        .welcome-toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 1000;
-            animation: fadeInUp 0.4s ease-out;
-        }
-        .overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            animation: fadeIn 0.3s ease-out;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; background: #f5f6fa; min-height: 100vh; }
+        
+        /* 通用样式 */
+        .hidden { display: none !important; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .btn-danger { background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%); color: white; }
+        .btn-outline { background: white; color: #667eea; border: 2px solid #667eea; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* 登录页面 */
+        .login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; }
+        .login-card { background: white; padding: 50px; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); width: 100%; max-width: 450px; }
+        .login-title { text-align: center; margin-bottom: 10px; color: #2c3e50; font-size: 32px; }
+        .login-subtitle { text-align: center; color: #7f8c8d; margin-bottom: 35px; }
+        .form-group { margin-bottom: 25px; }
+        .form-group label { display: block; margin-bottom: 10px; font-weight: 600; color: #2c3e50; }
+        .form-group input, .form-group select { width: 100%; padding: 14px 18px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 15px; }
+        .form-group input:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 4px rgba(102,126,234,0.1); }
+        .error-msg { background: #fee; color: #c0392b; padding: 12px 15px; border-radius: 10px; border-left: 4px solid #e74c3c; margin-bottom: 20px; display: none; }
+        
+        /* 顶部导航 */
+        .navbar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(102,126,234,0.3); }
+        .navbar-brand { font-size: 20px; font-weight: 700; }
+        .navbar-user { display: flex; align-items: center; gap: 15px; }
+        .navbar-info { text-align: right; }
+        .navbar-name { font-weight: 600; }
+        .navbar-date { font-size: 13px; opacity: 0.9; }
+        
+        /* 主容器 */
+        .container { max-width: 1400px; margin: 0 auto; padding: 30px; }
+        
+        /* 统计卡片 */
+        .dashboard { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); text-align: center; }
+        .stat-value { font-size: 42px; font-weight: 800; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
+        .stat-label { font-size: 14px; color: #7f8c8d; }
+        
+        /* 区块 */
+        .section { background: white; border-radius: 20px; padding: 30px; margin-bottom: 25px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .section-title { font-size: 22px; color: #2c3e50; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #667eea; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* 任务卡片 */
+        .task-card { background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 18px; padding: 25px; margin-bottom: 18px; border-left: 6px solid #667eea; box-shadow: 0 4px 20px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .task-card:hover { transform: translateX(5px); box-shadow: 0 8px 30px rgba(0,0,0,0.15); }
+        .task-header { display: flex; align-items: flex-start; gap: 20px; }
+        .task-checkbox { width: 36px; height: 36px; border: 2px solid #d0d7de; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; transition: all 0.3s; flex-shrink: 0; }
+        .task-checkbox.checked { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-color: #11998e; color: white; }
+        .task-body { flex: 1; }
+        .task-title { font-weight: 700; color: #2c3e50; font-size: 18px; margin-bottom: 8px; }
+        .task-desc { color: #7f8c8d; font-size: 14px; line-height: 1.6; }
+        .task-progress { margin-top: 15px; padding-top: 15px; border-top: 2px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; }
+        .progress-bar { flex: 1; height: 10px; background: #e0e0e0; border-radius: 5px; margin: 0 15px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 5px; transition: width 0.5s; }
+        
+        /* 表格 */
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th { background: #f8f9fa; padding: 15px; text-align: left; font-weight: 600; color: #2c3e50; border-bottom: 2px solid #e0e0e0; }
+        .data-table td { padding: 15px; border-bottom: 1px solid #f0f0f0; }
+        .data-table tr:hover { background: #f8f9fa; }
+        
+        /* 模态框 */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.show { display: flex; }
+        .modal-content { background: white; padding: 35px; border-radius: 20px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; animation: fadeInUp 0.3s; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-header { margin-bottom: 25px; }
+        .modal-title { font-size: 24px; color: #2c3e50; font-weight: 700; }
+        .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px; }
+        
+        /* 日期选择器 */
+        .date-selector { display: flex; gap: 15px; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+        .date-selector input[type="date"] { padding: 10px 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; }
+        
+        /* 任务编辑 */
+        .task-editor { display: grid; gap: 20px; }
+        .task-edit-item { background: #f8f9fa; padding: 20px; border-radius: 12px; }
+        .task-edit-item label { display: block; font-weight: 600; color: #2c3e50; margin-bottom: 10px; }
+        .task-edit-item textarea { width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; resize: vertical; min-height: 80px; font-family: inherit; }
+        .task-edit-item textarea:focus { outline: none; border-color: #667eea; }
+        
+        /* 提示消息 */
+        .toast { position: fixed; top: 20px; right: 20px; background: white; padding: 15px 25px; border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); z-index: 2000; animation: slideIn 0.3s; display: flex; align-items: center; gap: 10px; }
+        @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+        .toast.success { border-left: 4px solid #11998e; }
+        .toast.error { border-left: 4px solid #eb3349; }
+        
+        /* 徽章 */
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .badge-admin { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .badge-user { background: #e0e0e0; color: #555; }
+        
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .container { padding: 15px; }
+            .navbar { flex-direction: column; gap: 15px; padding: 15px; }
+            .navbar-info { text-align: left; }
+            .dashboard { grid-template-columns: repeat(2, 1fr); }
+            .task-header { flex-direction: column; }
+            .task-checkbox { margin: 0 auto; }
         }
     </style>
 </head>
 <body>
-    <div class="login-wrapper">
+    <!-- 登录页面 -->
+    <div id="loginPage" class="login-page">
         <div class="login-card">
-            <div class="login-header">
-                <h1>🔐 登录</h1>
-                <p>圣经共同追求</p>
-            </div>
-
-            <div class="error-message" id="errorMessage"></div>
-
-            <form id="loginForm" onsubmit="handleLogin(event)">
+            <h1 class="login-title">📖 提后二 22</h1>
+            <p class="login-subtitle">你要逃避青年人的私欲，同那清心呼求主的人，竭力追求公义、信、爱、和平。</p>
+            <div class="error-msg" id="loginError"></div>
+            <form onsubmit="handleLogin(event)">
                 <div class="form-group">
-                    <label for="username">用户名</label>
-                    <input type="text" id="username" required placeholder="请输入用户名" autocomplete="username">
+                    <label>用户名</label>
+                    <input type="text" id="loginUsername" required placeholder="请输入用户名" autocomplete="username">
                 </div>
-
                 <div class="form-group">
-                    <label for="password">密码</label>
-                    <input type="password" id="password" placeholder="请输入密码" autocomplete="current-password">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码" autocomplete="current-password">
                 </div>
-
-                <button type="submit" class="btn-login">登录</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">登 录</button>
             </form>
         </div>
     </div>
 
-    <script src="config.js"></script>
+    <!-- 用户打卡页面 -->
+    <div id="userPage" class="hidden">
+        <nav class="navbar">
+            <div class="navbar-brand">📖 我们共同追求</div>
+            <div class="navbar-user">
+                <div class="navbar-info">
+                    <div class="navbar-name" id="userDisplayName">用户</div>
+                    <div class="navbar-date" id="currentDateDisplay"></div>
+                </div>
+                <button class="btn btn-outline" onclick="logout()" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); color: white;">🚪 退出</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <div class="section">
+                <div class="section-title">
+                    <span>📅 今日任务</span>
+                    <span id="taskDateDisplay" style="font-size: 16px; font-weight: normal; color: #7f8c8d;"></span>
+                </div>
+                <div id="taskListContainer"></div>
+                <div class="task-progress" style="margin-top: 25px; padding: 20px; background: #f8f9fa; border-radius: 12px;">
+                    <span style="font-weight: 600; color: #2c3e50;">今日进度</span>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="userProgressBar" style="width: 0%"></div>
+                    </div>
+                    <span id="userProgressText" style="font-weight: 700; color: #667eea; min-width: 80px; text-align: right;">0/5</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理员页面 -->
+    <div id="adminPage" class="hidden">
+        <nav class="navbar">
+            <div class="navbar-brand">📊 管理后台</div>
+            <div class="navbar-user">
+                <div class="navbar-info">
+                    <div class="navbar-name">管理员</div>
+                    <div class="navbar-date" id="adminDateDisplay"></div>
+                </div>
+                <button class="btn btn-outline" onclick="logout()" style="background: rgba(255,255,255,0.2); border-color: rgba(255,255,255,0.5); color: white;">🚪 退出</button>
+            </div>
+        </nav>
+
+        <div class="container">
+            <!-- 统计驾驶舱 -->
+            <div class="dashboard">
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalUsers">0</div>
+                    <div class="stat-label">总用户数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTodayCheckin">0</div>
+                    <div class="stat-label">今日打卡</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTodayRate">0%</div>
+                    <div class="stat-label">今日完成率</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotalTasks">0</div>
+                    <div class="stat-label">今日完成任务</div>
+                </div>
+            </div>
+
+            <!-- 任务管理 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📝 任务管理</span>
+                </div>
+                <div class="date-selector">
+                    <label>选择日期：</label>
+                    <input type="date" id="taskDateInput" onchange="loadTasksForDate()">
+                    <button class="btn btn-primary" onclick="setTaskDateToday()">今天</button>
+                    <button class="btn btn-success" onclick="saveDailyTasks()">💾 保存任务</button>
+                </div>
+                <div class="task-editor" id="taskEditorContainer"></div>
+            </div>
+
+            <!-- 用户管理 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>👥 用户管理</span>
+                    <button class="btn btn-primary" onclick="showAddUserModal()">➕ 添加用户</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr><th>用户名</th><th>姓名</th><th>角色</th><th>今日进度</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="userTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- 打卡记录汇总 -->
+            <div class="section">
+                <div class="section-title">
+                    <span>📊 打卡记录汇总</span>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="queryCheckinRecords()">🔍 查询</button>
+                        <button class="btn btn-success" onclick="exportCheckinToExcel()">📥 导出 Excel</button>
+                    </div>
+                </div>
+                <div class="date-selector">
+                    <label>开始日期：</label>
+                    <input type="date" id="recordStartDate">
+                    <label>结束日期：</label>
+                    <input type="date" id="recordEndDate">
+                </div>
+                <div id="checkinRecordsContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户模态框 -->
+    <div class="modal" id="addUserModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">➕ 添加用户</h3>
+            </div>
+            <div class="form-group">
+                <label>用户名</label>
+                <input type="text" id="newUsername" placeholder="请输入用户名">
+            </div>
+            <div class="form-group">
+                <label>姓名</label>
+                <input type="text" id="newUserRealName" placeholder="请输入姓名">
+            </div>
+            <div class="form-group">
+                <label>密码</label>
+                <input type="password" id="newUserPassword" placeholder="留空使用默认密码 12345678">
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-outline" onclick="closeAddUserModal()">取消</button>
+                <button class="btn btn-primary" onclick="saveNewUser()">保存</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 如果已经登录，直接跳转
-        window.addEventListener('DOMContentLoaded', () => {
-            const currentUser = getCurrentUser();
-            if (currentUser) {
-                if (currentUser.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'index.html';
-                }
-            }
-        });
+        // ==================== 数据配置 ====================
+        const DEFAULT_USERS = {
+            'admin': { password: '12345678', role: 'admin', name: '管理员' },
+            '张三': { password: '12345678', role: 'user', name: '张三' },
+            '李四': { password: '12345678', role: 'user', name: '李四' },
+            '王五': { password: '12345678', role: 'user', name: '王五' },
+            '赵六': { password: '12345678', role: 'user', name: '赵六' }
+        };
 
-        function handleLogin(event) {
-            event.preventDefault();
+        const TASK_TEMPLATES = {
+            1: { title: '📖 圣经 (3 旧 1 新)', default: '旧约 3 章 + 新约 1 章' },
+            2: { title: '生命读经', default: '生命读经进度' },
+            3: { title: '诗歌', default: '诗歌背诵' },
+            4: { title: '背经', default: '圣经背诵' },
+            5: { title: '晨兴', default: '晨兴喂养' }
+        };
+
+        // ==================== 初始化 ====================
+        function init() {
+            initDefaultUsers();
+            initTodayTasks();
             
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            
-            const result = validateLogin(username, password);
-            
-            if (result.success) {
-                showWelcomeAndRedirect(result.user);
+            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (user) {
+                showPage(user.role);
             } else {
-                showError(result.message);
+                showPage('login');
             }
         }
 
-        function showWelcomeAndRedirect(user) {
-            // 保存用户信息
-            saveUser(user);
-            
-            // 显示欢迎提示
-            const welcomeDiv = document.createElement('div');
-            welcomeDiv.className = 'welcome-toast';
-            welcomeDiv.innerHTML = `
-                <div style="font-size: 60px; margin-bottom: 15px;">✅</div>
-                <h3 style="color: #2c3e50; margin-bottom: 10px;">登录成功！</h3>
-                <p style="color: #7f8c8d;">欢迎，${user.name}！</p>
-                <p style="font-size: 13px; color: #95a5a6; margin-top: 15px;">正在跳转...</p>
-            `;
-            
-            document.body.appendChild(welcomeDiv);
-            
-            const overlay = document.createElement('div');
-            overlay.className = 'overlay';
-            document.body.appendChild(overlay);
-            
-            // 延迟跳转
-            setTimeout(() => {
-                if (user.role === 'admin') {
-                    window.location.href = 'admin.html';
-                } else {
-                    window.location.href = 'user.html';
-                }
-            }, 1500);
+        function initDefaultUsers() {
+            const custom = JSON.parse(localStorage.getItem('users') || '{}');
+            let changed = false;
+            Object.keys(DEFAULT_USERS).forEach(u => {
+                if (!custom[u]) { custom[u] = DEFAULT_USERS[u]; changed = true; }
+            });
+            if (changed) localStorage.setItem('users', JSON.stringify(custom));
         }
 
-        function showError(message) {
-            const errorEl = document.getElementById('errorMessage');
-            errorEl.textContent = '❌ ' + message;
-            errorEl.style.display = 'block';
-            
-            setTimeout(() => {
-                errorEl.style.display = 'none';
-            }, 3000);
+        function initTodayTasks() {
+            const today = getTodayStr();
+            const tasks = JSON.parse(localStorage.getItem('tasks_' + today) || '{}');
+            if (!Object.keys(tasks).length) {
+                const defaultTasks = {};
+                Object.keys(TASK_TEMPLATES).forEach(k => {
+                    defaultTasks[k] = TASK_TEMPLATES[k].default;
+                });
+                localStorage.setItem('tasks_' + today, JSON.stringify(defaultTasks));
+            }
         }
+
+        // ==================== 工具函数 ====================
+        function getTodayStr() {
+            const d = new Date();
+            return d.toISOString().split('T')[0];
+        }
+
+        function formatDate(dateStr) {
+            const d = new Date(dateStr);
+            const week = ['日','一','二','三','四','五','六'][d.getDay()];
+            return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日 周${week}`;
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span><span>${msg}</span>`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // ==================== 页面显示 ====================
+        function showPage(role) {
+            document.getElementById('loginPage').classList.add('hidden');
+            document.getElementById('userPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+
+            if (role === 'login') {
+                document.getElementById('loginPage').classList.remove('hidden');
+            } else if (role === 'admin') {
+                document.getElementById('adminPage').classList.remove('hidden');
+                initAdminPage();
+            } else {
+                document.getElementById('userPage').classList.remove('hidden');
+                initUserPage();
+            }
+        }
+
+        // ==================== 登录功能 ====================
+        function handleLogin(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            
+            if (!users[username]) {
+                showError('用户名不存在');
+                return;
+            }
+            if (users[username].password !== password) {
+                showError('密码错误');
+                return;
+            }
+            
+            localStorage.setItem('currentUser', JSON.stringify({
+                username: username,
+                name: users[username].name,
+                role: users[username].role
+            }));
+            showPage(users[username].role);
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('loginError');
+            el.textContent = '❌ ' + msg;
+            el.style.display = 'block';
+            setTimeout(() => el.style.display = 'none', 3000);
+        }
+
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                localStorage.removeItem('currentUser');
+                location.reload();
+            }
+        }
+
+        // ==================== 用户打卡页面 ====================
+        function initUserPage() {
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            document.getElementById('userDisplayName').textContent = user.name;
+            
+            const today = getTodayStr();
+            document.getElementById('currentDateDisplay').textContent = formatDate(today);
+            document.getElementById('taskDateDisplay').textContent = formatDate(today);
+            
+            loadUserTasks(today);
+            
+            // 每分钟自动保存一次
+            setInterval(() => autoSaveTasks(), 60000);
+        }
+
+        function loadUserTasks(date) {
+            const tasks = JSON.parse(localStorage.getItem('tasks_' + date) || '{}');
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const done = JSON.parse(localStorage.getItem('done_' + date + '_' + user.username) || '{}');
+            
+            let html = '';
+            let completed = 0;
+            for (let i = 1; i <= 5; i++) {
+                const isDone = done[i] === true;
+                if (isDone) completed++;
+                html += `
+                    <div class="task-card">
+                        <div class="task-header">
+                            <div class="task-checkbox ${isDone ? 'checked' : ''}" onclick="toggleTask(${i})">
+                                ${isDone ? '✓' : ''}
+                            </div>
+                            <div class="task-body">
+                                <div class="task-title">${TASK_TEMPLATES[i].title}</div>
+                                <div class="task-desc">${tasks[i] || TASK_TEMPLATES[i].default}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('taskListContainer').innerHTML = html;
+            updateProgressBar(completed, 5);
+        }
+
+        function toggleTask(taskId) {
+            const today = getTodayStr();
+            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const key = 'done_' + today + '_' + user.username;
+            const done = JSON.parse(localStorage.getItem(key) || '{}');
+            done[taskId] = !done[taskId];
+            localStorage.setItem(key, JSON.stringify(done));
+            loadUserTasks(today);
+            showToast('已保存');
+        }
+
+        function updateProgressBar(completed, total) {
+            const pct = Math.round((completed / total) * 100);
+            document.getElementById('userProgressBar').style.width = pct + '%';
+            document.getElementById('userProgressText').textContent = `${completed}/${total}`;
+        }
+
+        function autoSaveTasks() {
+            // 自动保存已在 toggleTask 中实现
+            console.log('Auto-save check at', new Date().toLocaleString());
+        }
+
+        // ==================== 管理员页面 ====================
+        function initAdminPage() {
+            const today = getTodayStr();
+            document.getElementById('adminDateDisplay').textContent = formatDate(today);
+            document.getElementById('taskDateInput').value = today;
+            document.getElementById('recordStartDate').value = today;
+            document.getElementById('recordEndDate').value = today;
+            
+            loadDashboard();
+            loadTasksForDate();
+            loadUserTable();
+        }
+
+        function loadDashboard() {
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const today = getTodayStr();
+            
+            let userCount = 0, todayCount = 0, totalTasks = 0;
+            Object.keys(users).forEach(u => {
+                if (u === 'admin') return;
+                userCount++;
+                const done = JSON.parse(localStorage.getItem('done_' + today + '_' + u) || '{}');
+                const count = Object.keys(done).filter(k => done[k]).length;
+                if (count > 0) todayCount++;
+                totalTasks += count;
+            });
+            
+            const rate = userCount > 0 ? Math.round((todayCount / userCount) * 100) : 0;
+            
+            document.getElementById('statTotalUsers').textContent = userCount;
+            document.getElementById('statTodayCheckin').textContent = todayCount;
+            document.getElementById('statTodayRate').textContent = rate + '%';
+            document.getElementById('statTotalTasks').textContent = totalTasks;
+        }
+
+        function loadTasksForDate() {
+            const date = document.getElementById('taskDateInput').value;
+            const tasks = JSON.parse(localStorage.getItem('tasks_' + date) || '{}');
+            
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                html += `
+                    <div class="task-edit-item">
+                        <label>${i}. ${TASK_TEMPLATES[i].title}</label>
+                        <textarea id="taskInput${i}" placeholder="输入任务内容...">${tasks[i] || TASK_TEMPLATES[i].default}</textarea>
+                    </div>
+                `;
+            }
+            document.getElementById('taskEditorContainer').innerHTML = html;
+        }
+
+        function setTaskDateToday() {
+            const today = getTodayStr();
+            document.getElementById('taskDateInput').value = today;
+            loadTasksForDate();
+        }
+
+        function saveDailyTasks() {
+            const date = document.getElementById('taskDateInput').value;
+            const tasks = {};
+            for (let i = 1; i <= 5; i++) {
+                const val = document.getElementById('taskInput' + i).value.trim();
+                tasks[i] = val || TASK_TEMPLATES[i].default;
+            }
+            localStorage.setItem('tasks_' + date, JSON.stringify(tasks));
+            showToast('任务已保存');
+        }
+
+        function loadUserTable() {
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const today = getTodayStr();
+            
+            let html = '';
+            Object.keys(users).forEach(u => {
+                if (u === 'admin') return;
+                const done = JSON.parse(localStorage.getItem('done_' + today + '_' + u) || '{}');
+                const count = Object.keys(done).filter(k => done[k]).length;
+                const pct = Math.round((count / 5) * 100);
+                
+                html += `
+                    <tr>
+                        <td>${u}</td>
+                        <td>${users[u].name}</td>
+                        <td><span class="badge badge-user">普通用户</span></td>
+                        <td>
+                            <div style="display:flex;align-items:center;gap:10px;">
+                                <span>${count}/5</span>
+                                <div class="progress-bar" style="width:100px;margin:0;">
+                                    <div class="progress-fill" style="width:${pct}%"></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><button class="btn btn-danger" style="padding:6px 12px;font-size:12px;" onclick="deleteUser('${u}')">删除</button></td>
+                    </tr>
+                `;
+            });
+            document.getElementById('userTableBody').innerHTML = html;
+        }
+
+        function showAddUserModal() {
+            document.getElementById('addUserModal').classList.add('show');
+        }
+
+        function closeAddUserModal() {
+            document.getElementById('addUserModal').classList.remove('show');
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newUserRealName').value = '';
+            document.getElementById('newUserPassword').value = '';
+        }
+
+        function saveNewUser() {
+            const username = document.getElementById('newUsername').value.trim();
+            const name = document.getElementById('newUserRealName').value.trim();
+            const password = document.getElementById('newUserPassword').value.trim() || '12345678';
+            
+            if (!username || !name) { showToast('请填写用户名和姓名', 'error'); return; }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            if (users[username]) { showToast('用户已存在', 'error'); return; }
+            
+            users[username] = { password, role: 'user', name };
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            showToast('用户添加成功');
+            closeAddUserModal();
+            loadUserTable();
+            loadDashboard();
+        }
+
+        function deleteUser(username) {
+            if (!confirm('确定要删除用户 "' + username + '" 吗？')) return;
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            delete users[username];
+            localStorage.setItem('users', JSON.stringify(users));
+            showToast('用户已删除');
+            loadUserTable();
+            loadDashboard();
+        }
+
+        function queryCheckinRecords() {
+            const startDate = document.getElementById('recordStartDate').value;
+            const endDate = document.getElementById('recordEndDate').value;
+            
+            if (!startDate || !endDate) {
+                showToast('请选择日期范围', 'error');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            let html = '<table class="data-table"><thead><tr><th>日期</th><th>用户</th>';
+            for (let i = 1; i <= 5; i++) {
+                html += `<th>${TASK_TEMPLATES[i].title}</th>`;
+            }
+            html += '<th>完成数</th></tr></thead><tbody>';
+            
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                Object.keys(users).forEach(u => {
+                    if (u === 'admin') return;
+                    const done = JSON.parse(localStorage.getItem('done_' + dateStr + '_' + u) || '{}');
+                    let row = `<tr><td>${dateStr}</td><td>${users[u].name} (${u})</td>`;
+                    let count = 0;
+                    for (let i = 1; i <= 5; i++) {
+                        const isDone = done[i] === true;
+                        if (isDone) count++;
+                        row += `<td>${isDone ? '✅' : '❌'}</td>`;
+                    }
+                    row += `<td>${count}/5</td></tr>`;
+                    html += row;
+                });
+            }
+            html += '</tbody></table>';
+            document.getElementById('checkinRecordsContainer').innerHTML = html;
+        }
+
+        function exportCheckinToExcel() {
+            const startDate = document.getElementById('recordStartDate').value;
+            const endDate = document.getElementById('recordEndDate').value;
+            
+            if (!startDate || !endDate) {
+                showToast('请选择日期范围', 'error');
+                return;
+            }
+            
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const headers = ['日期', '用户', '姓名'];
+            for (let i = 1; i <= 5; i++) {
+                headers.push(TASK_TEMPLATES[i].title.replace(/📖|📚|🎵|🏠/g, '').trim());
+            }
+            headers.push('完成数');
+            const data = [headers];
+            
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            
+            // 统计数据
+            let totalRecords = 0;
+            let totalCompleted = 0;
+            const taskStats = [0, 0, 0, 0, 0, 0];
+            const userStats = {};
+            
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                const dateStr = d.toISOString().split('T')[0];
+                Object.keys(users).forEach(u => {
+                    if (u === 'admin') return;
+                    const done = JSON.parse(localStorage.getItem('done_' + dateStr + '_' + u) || '{}');
+                    const row = [dateStr, u, users[u].name];
+                    let count = 0;
+                    for (let i = 1; i <= 5; i++) {
+                        const isDone = done[i] === true;
+                        if (isDone) {
+                            count++;
+                            taskStats[i]++;
+                        }
+                        row.push(isDone ? '是' : '否');
+                    }
+                    row.push(`${count}/5`);
+                    data.push(row);
+                    
+                    totalRecords++;
+                    totalCompleted += count;
+                    if (!userStats[u]) userStats[u] = 0;
+                    userStats[u] += count;
+                });
+            }
+            
+            // 添加汇总行
+            data.push([]);
+            data.push(['=== 汇总 ===', '', '', '', '', '', '', '', '']);
+            
+            const avgComplete = totalRecords > 0 ? (totalCompleted / totalRecords).toFixed(2) : 0;
+            data.push(['总记录数', totalRecords, '', '总完成数', totalCompleted, '', '人均完成', avgComplete, '']);
+            
+            const taskNames = ['', '圣经 (3 旧 1 新)', '生命读经', '诗歌', '背经', '晨兴'];
+            for (let i = 1; i <= 5; i++) {
+                data.push([taskNames[i] + '完成数', taskStats[i], '', '', '', '', '', '', '']);
+            }
+            
+            data.push([]);
+            data.push(['=== 用户排名 ===', '', '', '', '', '', '', '', '']);
+            const sortedUsers = Object.entries(userStats).sort((a, b) => b[1] - a[1]);
+            sortedUsers.forEach(([u, count], idx) => {
+                data.push([`第${idx + 1}名`, u, users[u].name, '', '', '', '', '', `${count}项`]);
+            });
+            
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '打卡记录');
+            
+            ws['!cols'] = [{wch:12}, {wch:15}, {wch:10}, {wch:15}, {wch:12}, {wch:10}, {wch:10}, {wch:10}, {wch:10}];
+            
+            XLSX.writeFile(wb, `打卡记录_${startDate}_${endDate}.xlsx`);
+            showToast('Excel 已导出（含汇总）');
+        }
+
+        // ==================== 启动 ====================
+        init();
     </script>
 </body>
 </html>
